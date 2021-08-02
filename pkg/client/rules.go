@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/url"
+	"strings"
+	"unicode"
 
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
@@ -100,8 +102,16 @@ func (r *CortexClient) ListRules(ctx context.Context, namespace string) (map[str
 		return nil, err
 	}
 
+	s := string(body)
+	s = strings.TrimFunc(s, func(r rune) bool {
+		if unicode.IsGraphic(r){
+			log.Warn("msg", "Found non-printing char!")
+		}
+		return !unicode.IsGraphic(r)
+	})
+
 	ruleSet := map[string][]rwrulefmt.RuleGroup{}
-	err = yaml.Unmarshal(body, &ruleSet)
+	err = yaml.Unmarshal([]byte(s), &ruleSet)
 	if err != nil {
 		return nil, err
 	}
