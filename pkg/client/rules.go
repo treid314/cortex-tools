@@ -103,9 +103,10 @@ func (r *CortexClient) ListRules(ctx context.Context, namespace string) (map[str
 	}
 
 	s := string(body)
+	log.Info("msg", "Response body", "Body: ", s)
 	s = strings.TrimFunc(s, func(r rune) bool {
 		if unicode.IsGraphic(r){
-			log.Warn("msg", "Found non-printing char!")
+			log.Warn("msg", "Found non-printing char!", "rune", r)
 		}
 		return !unicode.IsGraphic(r)
 	})
